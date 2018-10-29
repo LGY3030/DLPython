@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[5]:
 
 
 def AND(x1,x2):
@@ -13,7 +13,7 @@ def AND(x1,x2):
         return 0
 
 
-# In[2]:
+# In[6]:
 
 
 print(AND(1,1))
@@ -22,7 +22,7 @@ print(AND(1,0))
 print(AND(0,0))
 
 
-# In[5]:
+# In[11]:
 
 
 #bias
@@ -35,7 +35,7 @@ print(np.sum(w*x))
 print(np.sum(w*x)+b)
 
 
-# In[6]:
+# In[12]:
 
 
 def AND(x1,x2):
@@ -49,7 +49,7 @@ def AND(x1,x2):
         return 0
 
 
-# In[7]:
+# In[13]:
 
 
 print(AND(1,1))
@@ -58,7 +58,7 @@ print(AND(1,0))
 print(AND(0,0))
 
 
-# In[8]:
+# In[14]:
 
 
 def NAND(x1,x2):
@@ -72,7 +72,7 @@ def NAND(x1,x2):
         return 0
 
 
-# In[10]:
+# In[15]:
 
 
 print(NAND(1,1))
@@ -81,7 +81,7 @@ print(NAND(1,0))
 print(NAND(0,0))
 
 
-# In[11]:
+# In[16]:
 
 
 def OR(x1,x2):
@@ -95,11 +95,32 @@ def OR(x1,x2):
         return 0
 
 
-# In[12]:
+# In[17]:
 
 
 print(OR(1,1))
 print(OR(0,1))
 print(OR(1,0))
 print(OR(0,0))
+
+
+# In[18]:
+
+
+# perceptron ---> linear
+# XOR ---> nonlinear
+# multiperceptron ---> XOR
+def XOR(x1,x2):
+    a=NAND(x1,x2)
+    b=OR(x1,x2)
+    return AND(a,b)
+
+
+# In[19]:
+
+
+print(XOR(1,1))
+print(XOR(0,1))
+print(XOR(1,0))
+print(XOR(0,0))
 
