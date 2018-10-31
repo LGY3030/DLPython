@@ -281,3 +281,18 @@ y=softmax_function_nooverflow(a)
 print(y)
 print(np.sum(y))
 
+
+# In[4]:
+
+
+# import sys,os
+# sys.path.append(os.pardir) ---> 到上一個目錄
+from dataset.mnist import load_mnist
+
+# load_mnist function 回傳值是 (訓練影像,訓練標籤),(測試影像,測試標籤)
+(x_train,t_train),(x_test,t_test)=load_mnist(flatten=True,normalize=False)
+print(x_train.shape)
+print(t_train.shape)
+print(x_test.shape)
+print(t_test.shape)
+
