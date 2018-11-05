@@ -56,3 +56,33 @@ x_batch=x_train[batch_mask]
 t_batch=t_train[batch_mask]
 print(np.random.choice(60000,10))
 
+
+# In[4]:
+
+
+# one or batch learning
+# cross entropy error
+import numpy as np
+from dataset.mnist import load_mnist
+def cross_entropy_error(y,t):
+    if y.ndim==1:
+        y=y.reshape(1,y.size)
+        t=t.reshape(1,t.size)
+    batch=y.shape[0]
+    delta=1e-7
+    return -(1/batch)*np.sum(t*np.log(y+delta))
+
+
+# In[98]:
+
+
+import numpy as np
+t = np.array([[2],[3]])
+y = np.array([[0.1, 0.05, 0.6, 0.0, 0.05, 0.1, 0.0, 0.1, 0.0, 0.0],[0.1, 0.05, 0.0, 0.7, 0.05, 0.1, 0.0, 0.1, 0.0, 0.0]])
+
+batch_size = y.shape[0]
+print(batch_size)
+print(np.arange(batch_size))
+
+print(y[np.array([0]), np.array([2])])
+
