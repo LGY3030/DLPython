@@ -37,7 +37,7 @@ y=[0.1,0.05,0.1,0.0,0.05,0.1,0.0,0.6,0.0,0.0]
 print(cross_entropy_error(np.array(y),np.array(t)))
 
 
-# In[4]:
+# In[2]:
 
 
 # Little batch learning
@@ -85,4 +85,61 @@ print(batch_size)
 print(np.arange(batch_size))
 
 print(y[np.array([0]), np.array([2])])
+
+
+# In[3]:
+
+
+# numerical differentation
+# rounding error
+import numpy as np
+def numerical_diff(f,x):
+    h=10e-50
+    return(f(x+h)-f(x))/h
+print(np.float32(1e-50))
+
+
+# In[4]:
+
+
+# numerical differentation
+import numpy as np
+def numerical_diff(f,x):
+    h=1e-4
+    return (f(x+h)-f(x-h))/(2*h)
+
+
+# In[13]:
+
+
+import numpy as np
+import matplotlib.pylab as plt
+def numerical_diff(f,x):
+    h=1e-4
+    return (f(x+h)-f(x-h))/(2*h)
+def function1(x):
+    return 0.01*x**2+0.1*x
+x=np.arange(0.0,20.0,0.1)
+y=function1(x)
+plt.xlabel("x")
+plt.ylabel("f(x)")
+plt.plot(x,y)
+plt.show()
+print(numerical_diff(function1,5))
+print(numerical_diff(function1,10))
+
+
+# In[16]:
+
+
+# partial numerical differentation
+def function2(x):
+    return x[0]**2+x[1]**2
+
+def function_temp1(x0):
+    return x0*x0+4.0**2.0
+print(numerical_diff(function_temp1,3))
+def function_temp2(x1):
+    return 3.0**2.0+x1*x1
+print(numerical_diff(function_temp2,4))
 
