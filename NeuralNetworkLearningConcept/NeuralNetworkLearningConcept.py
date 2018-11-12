@@ -143,3 +143,92 @@ def function_temp2(x1):
     return 3.0**2.0+x1*x1
 print(numerical_diff(function_temp2,4))
 
+
+# In[18]:
+
+
+# gradient
+import numpy as np
+def function2(x):
+    return x[0]**2+x[1]**2
+def numerical_gradient(f,x):
+    h=1e-4
+    grad=np.zeros_like(x)
+    for idx in range(x.size):
+        tmp=x[idx]
+        x[idx]=tmp+h
+        fxh1=f(x)
+        
+        x[idx]=tmp-h
+        fxh2=f(x)
+        grad[idx]=(fxh1-fxh2)/(2*h)
+        x[idx]=tmp
+    return grad
+print(numerical_gradient(function2,np.array([3.0,4.0])))
+print(numerical_gradient(function2,np.array([0.0,2.0])))
+print(numerical_gradient(function2,np.array([3.0,0.0])))
+
+
+# In[20]:
+
+
+# gradient descent
+import numpy as np
+def function2(x):
+    return x[0]**2+x[1]**2
+def numerical_gradient(f,x):
+    h=1e-4
+    grad=np.zeros_like(x)
+    for idx in range(x.size):
+        tmp=x[idx]
+        x[idx]=tmp+h
+        fxh1=f(x)
+        
+        x[idx]=tmp-h
+        fxh2=f(x)
+        grad[idx]=(fxh1-fxh2)/(2*h)
+        x[idx]=tmp
+    return grad
+def gradient_descent(f,init_x,lr=0.01,step_num=100):
+    x=init_x
+    for i in range(step_num):
+        grad=numerical_gradient(f,x)
+        x-=lr*grad
+    return x
+print(gradient_descent(function2,np.array([3.0,4.0]),lr=0.1,step_num=100))
+
+
+# In[21]:
+
+
+# gradient descent
+# lr too large
+print(gradient_descent(function2,np.array([3.0,4.0]),lr=10.0,step_num=100))
+
+
+# In[22]:
+
+
+# gradient descent
+# lr too small
+print(gradient_descent(function2,np.array([3.0,4.0]),lr=1e-10,step_num=100))
+
+
+# In[23]:
+
+
+# simple net
+import numpy as np
+from functions import softmax,cross_entropy_error
+from gradient import numerical_gradient
+class simpleNet:
+    def __init__(self):
+        self.W=np.random.randn(2,3)
+    def predict(self,x):
+        return np.dot(x,self.W)
+    def loss(self,x,t):
+        z=self.predict(x)
+        y=softmax(z)
+        loss=cross_entropy_error(y,t)
+        return loss
+
