@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[7]:
 
 
 import pandas as pd
@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-# In[2]:
+# In[8]:
 
 
 def readTrain():
@@ -23,7 +23,7 @@ def readTrain():
   return train
 
 
-# In[3]:
+# In[9]:
 
 
 def augFeatures(train):
@@ -35,7 +35,7 @@ def augFeatures(train):
   return train
 
 
-# In[4]:
+# In[10]:
 
 
 def normalize(train):
@@ -44,7 +44,7 @@ def normalize(train):
   return train_norm
 
 
-# In[5]:
+# In[11]:
 
 
 def buildTrain(train, pastDay=30, futureDay=5):
@@ -55,7 +55,7 @@ def buildTrain(train, pastDay=30, futureDay=5):
   return np.array(X_train), np.array(Y_train)
 
 
-# In[6]:
+# In[12]:
 
 
 def shuffle(X,Y):
@@ -65,7 +65,7 @@ def shuffle(X,Y):
   return X[randomList], Y[randomList]
 
 
-# In[7]:
+# In[13]:
 
 
 def splitData(X,Y,rate):
@@ -76,7 +76,7 @@ def splitData(X,Y,rate):
   return X_train, Y_train, X_val, Y_val
 
 
-# In[8]:
+# In[14]:
 
 
 # read SPY.csv
@@ -98,7 +98,7 @@ X_train, Y_train = shuffle(X_train, Y_train)
 X_train, Y_train, X_val, Y_val = splitData(X_train, Y_train, 0.1)
 
 
-# In[9]:
+# In[15]:
 
 
 def buildOneToOneModel(shape):
@@ -111,7 +111,7 @@ def buildOneToOneModel(shape):
   return model
 
 
-# In[10]:
+# In[16]:
 
 
 train = readTrain()
@@ -127,6 +127,103 @@ Y_train = Y_train[:,np.newaxis]
 Y_val = Y_val[:,np.newaxis]
 
 model = buildOneToOneModel(X_train.shape)
+callback = EarlyStopping(monitor="loss", patience=10, verbose=1, mode="auto")
+model.fit(X_train, Y_train, epochs=1000, batch_size=128, validation_data=(X_val, Y_val), callbacks=[callback])
+
+
+# In[17]:
+
+
+def buildManyToOneModel(shape):
+  model = Sequential()
+  model.add(LSTM(10, input_length=shape[1], input_dim=shape[2]))
+  # output shape: (1, 1)
+  model.add(Dense(1))
+  model.compile(loss="mse", optimizer="adam")
+  model.summary()
+  return model
+
+
+# In[18]:
+
+
+train = readTrain()
+train_Aug = augFeatures(train)
+train_norm = normalize(train_Aug)
+# change the last day and next day 
+X_train, Y_train = buildTrain(train_norm, 30, 1)
+X_train, Y_train = shuffle(X_train, Y_train)
+# because no return sequence, Y_train and Y_val shape must be 2 dimension
+X_train, Y_train, X_val, Y_val = splitData(X_train, Y_train, 0.1)
+
+model = buildManyToOneModel(X_train.shape)
+callback = EarlyStopping(monitor="loss", patience=10, verbose=1, mode="auto")
+model.fit(X_train, Y_train, epochs=1000, batch_size=128, validation_data=(X_val, Y_val), callbacks=[callback])
+
+
+# In[19]:
+
+
+def buildOneToManyModel(shape):
+  model = Sequential()
+  model.add(LSTM(10, input_length=shape[1], input_dim=shape[2]))
+  # output shape: (5, 1)
+  model.add(Dense(1))
+  model.add(RepeatVector(5))
+  model.compile(loss="mse", optimizer="adam")
+  model.summary()
+  return model
+
+
+# In[20]:
+
+
+train = readTrain()
+train_Aug = augFeatures(train)
+train_norm = normalize(train_Aug)
+# change the last day and next day 
+X_train, Y_train = buildTrain(train_norm, 1, 5)
+X_train, Y_train = shuffle(X_train, Y_train)
+X_train, Y_train, X_val, Y_val = splitData(X_train, Y_train, 0.1)
+
+# from 2 dimmension to 3 dimension
+Y_train = Y_train[:,:,np.newaxis]
+Y_val = Y_val[:,:,np.newaxis]
+
+model = buildOneToManyModel(X_train.shape)
+callback = EarlyStopping(monitor="loss", patience=10, verbose=1, mode="auto")
+model.fit(X_train, Y_train, epochs=1000, batch_size=128, validation_data=(X_val, Y_val), callbacks=[callback])
+
+
+# In[21]:
+
+
+def buildManyToManyModel(shape):
+  model = Sequential()
+  model.add(LSTM(10, input_length=shape[1], input_dim=shape[2], return_sequences=True))
+  # output shape: (5, 1)
+  model.add(TimeDistributed(Dense(1)))
+  model.compile(loss="mse", optimizer="adam")
+  model.summary()
+  return model
+
+
+# In[22]:
+
+
+train = readTrain()
+train_Aug = augFeatures(train)
+train_norm = normalize(train_Aug)
+# change the last day and next day 
+X_train, Y_train = buildTrain(train_norm, 5, 5)
+X_train, Y_train = shuffle(X_train, Y_train)
+X_train, Y_train, X_val, Y_val = splitData(X_train, Y_train, 0.1)
+
+# from 2 dimmension to 3 dimension
+Y_train = Y_train[:,:,np.newaxis]
+Y_val = Y_val[:,:,np.newaxis]
+
+model = buildManyToManyModel(X_train.shape)
 callback = EarlyStopping(monitor="loss", patience=10, verbose=1, mode="auto")
 model.fit(X_train, Y_train, epochs=1000, batch_size=128, validation_data=(X_val, Y_val), callbacks=[callback])
 
