@@ -1,7 +1,13 @@
 
 # coding: utf-8
 
-# In[7]:
+# In[1]:
+
+
+# RNN(Long Short-Term Memory, LSTM)
+
+
+# In[2]:
 
 
 import pandas as pd
@@ -15,17 +21,19 @@ import matplotlib.pyplot as plt
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-# In[8]:
+# In[3]:
 
 
+# 讀取資料
 def readTrain():
   train = pd.read_csv("S&P 500.csv")
   return train
 
 
-# In[9]:
+# In[4]:
 
 
+# Augment Features
 def augFeatures(train):
   train["Date"] = pd.to_datetime(train["Date"])
   train["year"] = train["Date"].dt.year
@@ -35,18 +43,23 @@ def augFeatures(train):
   return train
 
 
-# In[10]:
+# In[5]:
 
 
+# Normalization
 def normalize(train):
   train = train.drop(["Date"], axis=1)
   train_norm = train.apply(lambda x: (x - np.mean(x)) / (np.max(x) - np.min(x)))
   return train_norm
 
 
-# In[11]:
+# In[6]:
 
 
+# Build Training Data
+# X_train: 利用前30天的Open, High, Low, Close, Adj Close, Volume, month, year, date, day作為Features
+# Y_train: 利用未來5天的Adj Close作為Features
+# 須將資料做位移的展開作為Training Data
 def buildTrain(train, pastDay=30, futureDay=5):
   X_train, Y_train = [], []
   for i in range(train.shape[0]-futureDay-pastDay):
@@ -55,9 +68,10 @@ def buildTrain(train, pastDay=30, futureDay=5):
   return np.array(X_train), np.array(Y_train)
 
 
-# In[12]:
+# In[7]:
 
 
+#資料亂序
 def shuffle(X,Y):
   np.random.seed(10)
   randomList = np.arange(X.shape[0])
@@ -65,9 +79,10 @@ def shuffle(X,Y):
   return X[randomList], Y[randomList]
 
 
-# In[13]:
+# In[8]:
 
 
+# 將Training Data取一部份當作Validation Data
 def splitData(X,Y,rate):
   X_train = X[int(X.shape[0]*rate):]
   Y_train = Y[int(Y.shape[0]*rate):]
@@ -76,7 +91,10 @@ def splitData(X,Y,rate):
   return X_train, Y_train, X_val, Y_val
 
 
-# In[14]:
+# In[10]:
+
+
+# 將輸出合併
 
 
 # read SPY.csv
@@ -98,9 +116,16 @@ X_train, Y_train = shuffle(X_train, Y_train)
 X_train, Y_train, X_val, Y_val = splitData(X_train, Y_train, 0.1)
 
 
-# In[15]:
+# In[11]:
 
 
+# 模型建置
+
+
+# In[12]:
+
+
+# 一對一模型
 def buildOneToOneModel(shape):
   model = Sequential()
   model.add(LSTM(10, input_length=shape[1], input_dim=shape[2],return_sequences=True))
@@ -111,9 +136,10 @@ def buildOneToOneModel(shape):
   return model
 
 
-# In[16]:
+# In[13]:
 
 
+# 將過去的天數pastDay設為1，預測的天數futureDay也設為1
 train = readTrain()
 train_Aug = augFeatures(train)
 train_norm = normalize(train_Aug)
@@ -131,9 +157,10 @@ callback = EarlyStopping(monitor="loss", patience=10, verbose=1, mode="auto")
 model.fit(X_train, Y_train, epochs=1000, batch_size=128, validation_data=(X_val, Y_val), callbacks=[callback])
 
 
-# In[17]:
+# In[14]:
 
 
+# 多對一模型
 def buildManyToOneModel(shape):
   model = Sequential()
   model.add(LSTM(10, input_length=shape[1], input_dim=shape[2]))
@@ -144,9 +171,10 @@ def buildManyToOneModel(shape):
   return model
 
 
-# In[18]:
+# In[15]:
 
 
+# 需要設定的有pastDay=30、future=1 ，且Y_train 的維度需為二維
 train = readTrain()
 train_Aug = augFeatures(train)
 train_norm = normalize(train_Aug)
@@ -161,9 +189,10 @@ callback = EarlyStopping(monitor="loss", patience=10, verbose=1, mode="auto")
 model.fit(X_train, Y_train, epochs=1000, batch_size=128, validation_data=(X_val, Y_val), callbacks=[callback])
 
 
-# In[19]:
+# In[16]:
 
 
+# 一對多模型
 def buildOneToManyModel(shape):
   model = Sequential()
   model.add(LSTM(10, input_length=shape[1], input_dim=shape[2]))
@@ -175,9 +204,10 @@ def buildOneToManyModel(shape):
   return model
 
 
-# In[20]:
+# In[17]:
 
 
+# 將pastDay 設為1, futureDay 設為5
 train = readTrain()
 train_Aug = augFeatures(train)
 train_norm = normalize(train_Aug)
@@ -195,9 +225,10 @@ callback = EarlyStopping(monitor="loss", patience=10, verbose=1, mode="auto")
 model.fit(X_train, Y_train, epochs=1000, batch_size=128, validation_data=(X_val, Y_val), callbacks=[callback])
 
 
-# In[21]:
+# In[18]:
 
 
+# 多對多模型 (輸入與輸出相同長度)
 def buildManyToManyModel(shape):
   model = Sequential()
   model.add(LSTM(10, input_length=shape[1], input_dim=shape[2], return_sequences=True))
@@ -208,9 +239,10 @@ def buildManyToManyModel(shape):
   return model
 
 
-# In[22]:
+# In[19]:
 
 
+# 將pastDay 以及futureDay 設為相同長度5
 train = readTrain()
 train_Aug = augFeatures(train)
 train_norm = normalize(train_Aug)
