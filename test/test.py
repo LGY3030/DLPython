@@ -1,13 +1,13 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[2]:
 
 
 # RNN(Long Short-Term Memory, LSTM)
 
 
-# In[2]:
+# In[3]:
 
 
 import pandas as pd
@@ -50,6 +50,7 @@ def augFeatures(train):
 def normalize(train):
   train = train.drop(["Date"], axis=1)
   train_norm = train.apply(lambda x: (x - np.mean(x)) / (np.max(x) - np.min(x)))
+  print(np.mean(train))
   return train_norm
 
 
